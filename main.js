@@ -1,6 +1,6 @@
 // Esta funcion es la configuracion del juego
-(function(){
-	self.Board = function(width, height){
+(function () {
+	self.Board = function (width, height) {
 		this.width = width;
 		this.height = height;
 		this.playing = false;
@@ -10,7 +10,7 @@
 	}
 
 	self.Board.prototype = {
-		get elements(){
+		get elements() {
 			var elements = this.bars;
 			elements.push(this.ball);
 			return elements;
@@ -19,8 +19,8 @@
 })();
 
 // Esta funcion se encarga de definir las medidas del canvas
-(function(){
-	self.Bar = function(x, y, width, height, board){
+(function () {
+	self.Bar = function (x, y, width, height, board) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -28,17 +28,25 @@
 		this.board = board;
 		this.board.bars.push(this); // Se agrega la barra al tablero
 		this.kind = 'rectangle'; // Se define el tipo de elemento
+		this.speed = 10; // Se define la velocidad de la barra
 	}
 
 	self.Bar.prototype = {
-		down: function(){ },
-		up: function(){ } 
+		down: function () {
+			this.y += this.speed;
+		},
+		up: function () {
+			this.y -= this.speed;
+		},
+		toString: function () {
+			return "x: " + this.x + " y: " + this.y;
+		}
 	}
 })();
 
 // Esta funcion se encarga de dibujar el tablero
-(function(){
-	self.BoardView = function(canvas,board){
+(function () {
+	self.BoardView = function (canvas, board) {
 		this.canvas = canvas;
 		this.canvas.width = board.width;
 		this.canvas.height = board.height;
@@ -47,37 +55,49 @@
 	}
 
 	self.BoardView.prototype = {
-		draw: function(){
-			for (var i = this.board.elements.length -1; i >= 0; i--) { // Se recorre el elemento para dibujarlo
+		draw: function () {
+			for (var i = this.board.elements.length - 1; i >= 0; i--) { // Se recorre el elemento para dibujarlo
 				var el = this.board.elements[i];
-				
+
 				draw(this.ctx, el);
 			}
 		}
 	}
 
 	// Se encarga de dibujar el element elegido
-	function draw(ctx, element){
-		if(element !== null && element.hasOwnProperty('kind')){
-			switch(element.kind){
+	function draw(ctx, element) {
+		if (element !== null && element.hasOwnProperty('kind')) {
+			switch (element.kind) {
 				case 'rectangle':
 					ctx.fillRect(element.x, element.y, element.width, element.height);
 					break;
 			}
 		}
-		
+
 	}
 })();
+
+var board = new Board(800, 400); // Se crea el tablero con las dimensiones del canvas
+// x, y, width, height
+var bar = new Bar(0, 150, 20, 100, board); // Se crea la barra1
+var bar = new Bar(780, 150, 20, 100, board); // Se crea la barra2
+var canvas = document.getElementById('canvas'); // Se obtiene el canvas desde el DOM
+var board_view = new BoardView(canvas, board);
+
+document.addEventListener("keydown", function (ev) {
+	if (ev.keyCode == 38) {
+		bar.up(); // Se mueve la barra hacia arriba
+	}
+	if (ev.keyCode == 40) {
+		bar.down(); // Se mueve la barra hacia abajo
+	}
+
+	console.log(bar.toString());
+});
 
 window.addEventListener('load', main); // Esta funcion se encarga de escuchar la carga de la pagina
 
 // Esta funcion se encarga de inicializar el juego
-function main(){
-	var board = new Board(800, 400); // Se crea el tablero con las dimensiones del canvas
-					// x, y, width, height
-	var bar = new Bar(0, 150, 20, 100, board); // Se crea la barra1
-	var bar = new Bar(780, 150, 20, 100, board); // Se crea la barra2
-	var canvas = document.getElementById('canvas'); // Se obtiene el canvas desde el DOM
-	var board_view = new BoardView(canvas, board);
+function main() {
 	board_view.draw();
 }
