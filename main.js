@@ -12,7 +12,7 @@
 	self.Board.prototype = {
 		get elements() {
 			var elements = this.bars;
-			elements.push(this.ball);
+			//elements.push(this.ball);
 			return elements;
 		}
 	}
@@ -55,49 +55,74 @@
 	}
 
 	self.BoardView.prototype = {
+		
+		clean: function () {
+			this.ctx.clearRect(0, 0, this.board.width, this.board.height);
+		},
 		draw: function () {
 			for (var i = this.board.elements.length - 1; i >= 0; i--) { // Se recorre el elemento para dibujarlo
 				var el = this.board.elements[i];
 
 				draw(this.ctx, el);
 			}
+		},
+		play: function () {
+			this.clean(); // Se limpia el canvas
+			this.draw(); // Se dibuja el tablero
 		}
 	}
 
 	// Se encarga de dibujar el element elegido
 	function draw(ctx, element) {
-		if (element !== null && element.hasOwnProperty('kind')) {
-			switch (element.kind) {
-				case 'rectangle':
-					ctx.fillRect(element.x, element.y, element.width, element.height);
-					break;
-			}
+		switch (element.kind) {
+			case 'rectangle':
+				ctx.fillRect(element.x, element.y, element.width, element.height);
+				break;
 		}
-
 	}
 })();
 
 var board = new Board(800, 400); // Se crea el tablero con las dimensiones del canvas
 // x, y, width, height
 var bar = new Bar(0, 150, 20, 100, board); // Se crea la barra1
-var bar = new Bar(780, 150, 20, 100, board); // Se crea la barra2
+var bar_2 = new Bar(780, 150, 20, 100, board); // Se crea la barra2
 var canvas = document.getElementById('canvas'); // Se obtiene el canvas desde el DOM
-var board_view = new BoardView(canvas, board);
+var board_view = new BoardView(canvas, board); // Se crea el tablero
 
 document.addEventListener("keydown", function (ev) {
+	ev.preventDefault();
 	if (ev.keyCode == 38) {
-		bar.up(); // Se mueve la barra hacia arriba
+		if(bar.y >= 10) {
+			bar.up(); // Se mueve la barra hacia arriba
+		}
 	}
-	if (ev.keyCode == 40) {
-		bar.down(); // Se mueve la barra hacia abajo
+	else if (ev.keyCode == 40) {
+		if(bar.y <= 290) {
+			bar.down(); // Se mueve la barra hacia abajo
+		}
 	}
-
-	console.log(bar.toString());
+	else if (ev.keyCode == 87) {
+		//W
+		if(bar_2.y >= 10) {
+			bar_2.up(); // Se mueve la segunda barra hacia arriba
+		}
+		
+	}
+	else if (ev.keyCode == 83) {
+		//S
+		if(bar_2.y <= 290) {
+			bar_2.down(); // Se mueve la segunda barra hacia abajo
+		}
+		
+	}
 });
 
-window.addEventListener('load', main); // Esta funcion se encarga de escuchar la carga de la pagina
+// self.addEventListener('load', main); // Esta funcion se encarga de escuchar la carga de la pagina
+
+window.requestAnimationFrame(controller); // Se llama a la funcion main cada vez que se refresca la pantalla
 
 // Esta funcion se encarga de inicializar el juego
-function main() {
-	board_view.draw();
+function controller() {
+	board_view.play();
+	window.requestAnimationFrame(controller);
 }
