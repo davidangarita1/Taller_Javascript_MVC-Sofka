@@ -7,11 +7,12 @@
 		this.game_over = false;
 		this.bars = [];
 		this.ball = null;
+		this.playing = false;
 	}
 
 	self.Board.prototype = {
 		get elements() {
-			var elements = this.bars;
+			var elements = this.bars.map(function (bar) { return bar; });
 			elements.push(this.ball);
 			return elements;
 		}
@@ -19,7 +20,7 @@
 })();
 
 // Esta funcion se encarga de crear la pelota
-(function(){
+(function () {
 	self.Ball = function (x, y, radius, board) {
 		this.x = x;
 		this.y = y;
@@ -27,9 +28,16 @@
 		this.speed_y = 0;
 		this.speed_x = 3;
 		this.board = board;
+		this.direction = 1;
 
 		board.ball = this;
 		this.kind = "circle";
+	}
+	self.Ball.prototype = {
+		move: function () {
+			this.x += (this.speed_x * this.direction);
+			this.y += (this.speed_y);
+		}
 	}
 })();
 
@@ -70,7 +78,7 @@
 	}
 
 	self.BoardView.prototype = {
-		
+
 		clean: function () {
 			this.ctx.clearRect(0, 0, this.board.width, this.board.height);
 		},
@@ -82,8 +90,11 @@
 			}
 		},
 		play: function () {
-			this.clean(); // Se limpia el canvas
-			this.draw(); // Se dibuja el tablero
+			if (!this.board.playing) {
+				this.clean(); // Se limpia el canvas
+				this.draw(); // Se dibuja el tablero
+				this.board.ball.move(); // Se mueve la pelota
+			}
 		}
 	}
 
@@ -112,36 +123,44 @@ var board_view = new BoardView(canvas, board); // Se crea el tablero
 var ball = new Ball(350, 100, 10, board); // Se crea la pelota
 
 document.addEventListener("keydown", function (ev) {
-	ev.preventDefault();
 	if (ev.keyCode == 38) {
-		if(bar.y >= 10) {
+		ev.preventDefault();
+		if (bar.y >= 10) {
 			bar.up(); // Se mueve la barra hacia arriba
 		}
 	}
 	else if (ev.keyCode == 40) {
-		if(bar.y <= 290) {
+		ev.preventDefault();
+		if (bar.y <= 290) {
 			bar.down(); // Se mueve la barra hacia abajo
 		}
 	}
 	else if (ev.keyCode == 87) {
 		//W
-		if(bar_2.y >= 10) {
+		ev.preventDefault();
+		if (bar_2.y >= 10) {
 			bar_2.up(); // Se mueve la segunda barra hacia arriba
 		}
-		
+
 	}
 	else if (ev.keyCode == 83) {
 		//S
-		if(bar_2.y <= 290) {
+		ev.preventDefault();
+		if (bar_2.y <= 290) {
 			bar_2.down(); // Se mueve la segunda barra hacia abajo
 		}
-		
+	} else if (ev.keyCode == 32) {
+		ev.preventDefault();
+		board.playing = !board.playing;
 	}
 });
 
 // self.addEventListener('load', main); // Esta funcion se encarga de escuchar la carga de la pagina
-
+board_view.draw(); // Se dibuja el tablero por primera vez
 window.requestAnimationFrame(controller); // Se llama a la funcion main cada vez que se refresca la pantalla
+setTimeout(function () {
+	ball.direction = -1;
+}, 4000);
 
 // Esta funcion se encarga de inicializar el juego
 function controller() {
