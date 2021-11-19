@@ -39,6 +39,26 @@
 		move: function () {
 			this.x += (this.speed_x * this.direction);
 			this.y += (this.speed_y);
+
+			// Collision con paredes verticales
+			if (this.x <= 10) {
+				this.speed_x = -this.speed_x;
+				this.bounce_angle = -this.bounce_angle;
+			}
+			if (this.x >= 790) {
+				this.speed_x = -this.speed_x;
+				this.bounce_angle = -this.bounce_angle;
+			}
+
+			// Collision con paredes horizontales
+			if (this.y <= 10) {
+				this.speed_y = -this.speed_y;
+				this.bounce_angle = -this.bounce_angle;
+			}
+			if (this.y >= 390) {
+				this.speed_y = -this.speed_y;
+				this.bounce_angle = -this.bounce_angle;
+			}
 		},
 		get width() {
 			return this.radius * 2;
@@ -145,7 +165,6 @@
 			if (a.y <= b.y && a.y + a.height >= b.y + b.height)
 				hit = true;
 		}
-
 		return hit;
 	}
 
